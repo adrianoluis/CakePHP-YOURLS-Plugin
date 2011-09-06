@@ -1,0 +1,15 @@
+<?php
+/**
+ * Get signature from Yourls admin panel or user the
+ * username and password you defined as admin. 
+ */
+$config = array(
+	'Yourls' => array(
+		'url' => 'YOURLS_URL',
+		// login
+		//'username' => 'YOURLS_USERNAME',
+		//'password' => 'YOURLS_PASSWORD',
+		// Secure passwordless
+		'signature' => 'YOURLS_SUGNATURE',
+	)
+);
