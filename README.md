@@ -1,11 +1,11 @@
-# CakePHP Yourls Plugin
+# CakePHP YOURLS Plugin
 * Author:  Adriano Luís Rocha (adriano.luis.rocha@gmail.com)
 * Version: 0.6
 * license: MIT
 # Install and Setup
 First clone the repository into your `app/plugins/yourls` directory
 
-	git clone git://github.com/driflash/CakePHP-Yourls-Plugin.git app/plugins/yourls
+	git clone git@github.com:driflash/CakePHP-YOURLS-Plugin.git app/plugins/yourls
 
 Once installed you'll need to create a file `app/config/yourls.php`. You can find an example of what you'll need and how it is laid out in `/yourls/config/yourls.php.example`.
 
@@ -19,7 +19,7 @@ Once installed you'll need to create a file `app/config/yourls.php`. You can fin
 	);
 
 # Usage
-You can call the component from any action in a controller, or automate url shortening just using the follow code in your `/app/app_controller.php`:
+You can call the component from any action in a controller or automate url shortening just using the follow code in your `/app/app_controller.php`:
 
 		function beforeRender() {
 			if (isset($this->shortIt) && $this->shortIt === TRUE) {
@@ -33,7 +33,7 @@ Than from yout view, access the shorted url using:
 
 	<?php echo $shorturl['url']; ?>
 
-To get statistics from all your links you must change the default plugin format to xml (son is nor supported yet). This new setup changes the return from shorter method.
+To get statistics from all your links you must change the default plugin format to xml (son is nor supported yet). This new setup changes the return from shorturl method.
 
 	var $components = array(
 		'Yourls.Yourls' => array(
