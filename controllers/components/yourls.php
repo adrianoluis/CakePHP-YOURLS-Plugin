@@ -93,32 +93,38 @@ class YourlsComponent extends Object
 	 * Startup component
 	 *
 	 * @param object $controller Instantiating controller
-	 * @access public
 	 */
 	function startup(&$controller)
 	{
 		$this->__httpSocket =& new HttpSocket();
-		if (Configure::read() > 0)
+		$this->__url = Configure::read('Yourls.url');
+		if (Configure::read('Yourls.signature'))
 		{
-			$this->__url = Configure::read('Yourls.url');
-			if (Configure::read('Yourls.signature'))
-			{
-				$this->__signature = Configure::read('Yourls.signature');
-			}
-			elseif (Configure::read('Yourls.username') && Configure::read('Yourls.password'))
-			{
-				$this->__username = Configure::read('Yourls.username');
-				$this->__password = Configure::read('Yourls.password');
-			}
-			else
-			{
-				trigger_error(__('No authentication provided!', TRUE), E_USER_NOTICE);
-			}
+			$this->__signature = Configure::read('Yourls.signature');
+		}
+		elseif (Configure::read('Yourls.username') && Configure::read('Yourls.password'))
+		{
+			$this->__username = Configure::read('Yourls.username');
+			$this->__password = Configure::read('Yourls.password');
+		}
+		else
+		{
+			trigger_error(__('No authentication provided!', TRUE), E_USER_NOTICE);
 		}
 	}
 
 	function initialize(&$controller, $settings = array())
 	{
+		if (isset($settings['format']) && !in_array($settings['format'], $this->__formats))
+		{
+			trigger_error(__('Invalid value for \'format\' setting.', TRUE), E_USER_NOTICE);
+			unset($settings['format']);
+		}
+		if (isset($settings['filter']) && !in_array($settings['filter'], $this->__filters))
+		{
+			trigger_error(__('Invalid value for \'filter\' setting.', TRUE), E_USER_NOTICE);
+			unset($settings['filter']);
+		}
 		$this->_set($settings);
 	}
 
@@ -126,6 +132,7 @@ class YourlsComponent extends Object
 	 * Get short URL for a link
 	 *
 	 * @param string $url to shorten
+	 * @param string $title title for url
 	 * @param string $keyword [optional] for custom short URLs
 	 * @param string $format [optional] either "json" or "xml"
 	 */
@@ -192,7 +199,7 @@ class YourlsComponent extends Object
 	 * Get stats about your links
 	 *
 	 * @param string $filter [optional] either "top", "bottom" , "rand" or "last"
-	 * @param int $limit maximum number of links to return
+	 * @param int [optional] $limit maximum number of links to return
 	 * @param string $format [optional] either "json" or "xml"
 	 */
 	function stats($filter = NULL, $limit = NULL, $format = NULL)
@@ -220,10 +227,9 @@ class YourlsComponent extends Object
 	/**
 	 * Calls HttpSocket request method using auth options
 	 *
-	 * @param array $query
-	 * @param array $request
+	 * @param array $query array with request parameters
 	 */
-	function __request($query = array(), $request = array())
+	function __request($query)
 	{
 		$url = "{$this->__url}/yourls-api.php";
 
@@ -233,14 +239,15 @@ class YourlsComponent extends Object
 		}
 		elseif (!empty($this->__username) && !empty($this->__password))
 		{
-			$request = array_merge($request, $this->__getAuthHeader());
+			$query = array_merge($query, array('username' => $this->__username, 'password' => $this->__password));
 		}
 		if ($this->requestMethod === 'get')
 		{
-			return $this->__httpSocket->get($url, $query, $request);
-		} elseif ($this->requestMethod === 'post')
+			return $this->__httpSocket->get($url, $query);
+		}
+		elseif ($this->requestMethod === 'post')
 		{
-			return $this->__httpSocket->post($url, $query, $request);
+			return $this->__httpSocket->post($url, $query);
 		}
 		else
 		{
@@ -251,7 +258,7 @@ class YourlsComponent extends Object
 	/**
 	 * Convert response into array
 	 *
-	 * @param string $response HttpSocket response.
+	 * @param string $response from remote call to YOURLS api
 	 */
 	function __process($response)
 	{
@@ -271,7 +278,7 @@ class YourlsComponent extends Object
 			}
 			elseif ($this->format === 'json')
 			{
-				// TODO need to be done
+				// TODO json parse
 			}
 			elseif ($this->format === 'simple')
 			{
@@ -281,21 +288,6 @@ class YourlsComponent extends Object
 			}
 		}
 		return $array;
-	}
-
-	/**
-	 * Credentials array for method with mandatory auth
-	 *
-	 *
-	 */
-	function __getAuthHeader() {
-		return array(
-			'auth' => array(
-				'method' => 'Basic',
-				'user' => $this->__username,
-				'pass' => $this->__password
-			)
-		);
 	}
 
 }

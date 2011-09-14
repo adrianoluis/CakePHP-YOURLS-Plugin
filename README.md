@@ -2,6 +2,7 @@
 * Author:  Adriano Luís Rocha (adriano.luis.rocha@gmail.com)
 * Version: 0.6
 * license: MIT
+
 # Install and Setup
 First clone the repository into your `app/plugins/yourls` directory
 
