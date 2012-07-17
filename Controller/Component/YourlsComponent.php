@@ -10,7 +10,7 @@
 App::uses('Xml', 'Utility');
 App::uses('HttpSocket', 'Network/Http');
 
-Configure::load('Yourls.auth');
+Configure::load('yourls');
 
 class YourlsComponent extends Component
 {

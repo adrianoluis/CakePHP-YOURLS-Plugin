@@ -7,9 +7,9 @@ First clone the repository into your `APP/Plugin/Yourls` directory
 
 	git clone git@github.com:driflash/CakePHP-YOURLS-Plugin.git APP/Plugin/Yourls
 
-Once installed you'll need to create a file `/Yourls/Config/auth.php`. You can find an example of what you'll need and how it is laid out in `/Yourls/Config/auth.php.example`.
+Once installed you'll need to create a file `/APP/Config/yourls.php`. You can find an example of what you'll need and how it is laid out in `/Yourls/Config/yourls.php.example`.
 
-	//app/config/yourls.php
+	//app/Config/yourls.php
 	$config = array(
 		'Yourls' => array(
 			'url' => 'YOURLS_URL',
@@ -21,9 +21,9 @@ Once installed you'll need to create a file `/Yourls/Config/auth.php`. You can f
 # Usage
 You can call the component from any action in a controller or automate url shortening just using the follow code in your `/APP/Controller/AppController.php`:
 
-		function beforeRender() {
-			$this->pageTitle = 'your url title goes here'
-		}
+	public function beforeRender() {
+		$this->pageTitle = 'your url title goes here'
+	}
 
 PS: is necessary to provide a title for shorter method otherwise it'll go in a infinite loop trying to resolve URL's title using YOURLS internal libs.
 
@@ -33,7 +33,7 @@ Than from yout view, access the shorted url using:
 
 To get statistics from all your links you must change the default plugin format to xml (son is nor supported yet). This new setup changes the return from shorturl method.
 
-	var $components = array(
+	public $components = array(
 		'Yourls.Yourls' => array(
 			'format' => 'xml'
 		)
