@@ -2,6 +2,7 @@
 * Author:  Adriano Luís Rocha (adriano.luis.rocha@gmail.com)
 * Version: 0.7
 * license: MIT
+
 # Install and Setup
 First clone the repository into your `APP/Plugin/Yourls` directory
 
