@@ -162,7 +162,7 @@ class YourlsComponent extends Component
 	 * 
 	 * @see Component::beforeRender($controller)
 	 */
-	public function beforeRender($controller)
+	public function beforeRender(Controller $controller)
 	{
 		if (isset($controller->shortIt) && $controller->shortIt === true)
 		{
@@ -181,7 +181,7 @@ class YourlsComponent extends Component
 	 * 
 	 * @see Component::startup($controller)
 	 */
-	public function startup($controller)
+	public function startup(Controller $controller)
 	{
 		$this->httpSocket =& new HttpSocket();
 		$this->url = Configure::read('Yourls.url');
