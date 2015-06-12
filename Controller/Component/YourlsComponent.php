@@ -71,10 +71,7 @@ class YourlsComponent extends Component
 	 *
 	 * @var string
 	 */
-	private $__requestMethods = array(
-		'get',
-		'post'
-	);
+	private $__requestMethods = array('get', 'post');
 
 	/**
 	 * Response format
@@ -101,40 +98,28 @@ class YourlsComponent extends Component
 	 * Convert response into array
 	 *
 	 * @param string $response from remote call to YOURLS api
+	 * @return array|string
 	 */
 	private function process(HttpSocketResponse $response)
 	{
-		$array = array();
+		$result = array();
 		if (!empty($response)) {
 			$body = $response->body();
 			switch ($this->format) {
 				case 'xml':
 					$xml = Xml::build($body);
 					$temp = Xml::toArray($xml);
-					$array = array(
-						'url' => $temp['result']['shorturl']
-					);
-					$temp = null;
-					$xml = null;
-					unset($temp);
-					unset($xml);
+					$result = array('Yourls' => $temp['result']);
 					break;
 				case 'json':
-					$temp = json_decode($body, true);
-					$array = array(
-						'url' => $temp['shorturl']
-					);
-					$temp = null;
-					unset($temp);
+					$result = array('Yourls' => json_decode($body, true));
 					break;
 				default:
-					$array = array(
-					'url' => $body
-				);
+					$result = $body;
 					break;
 			}
 		}
-		return $array;
+		return $result;
 	}
 
 	/**
@@ -154,8 +139,7 @@ class YourlsComponent extends Component
 		return $this->__httpSocket->{$this->requestMethod}($url, $query);
 	}
 
-	/**
-	 *
+	/*
 	 * @see Component::beforeRender($controller)
 	 */
 	public function beforeRender(Controller $controller)
@@ -169,8 +153,7 @@ class YourlsComponent extends Component
 		}
 	}
 
-	/**
-	 *
+	/*
 	 * @see Component::startup($controller)
 	 */
 	public function startup(Controller $controller)
@@ -187,8 +170,7 @@ class YourlsComponent extends Component
 		}
 	}
 
-	/**
-	 *
+	/*
 	 * @see Component::__construct($collection, $settings)
 	 */
 	public function __construct(ComponentCollection $collection, $settings = array())
@@ -215,6 +197,7 @@ class YourlsComponent extends Component
 	 * @param string $title title for url
 	 * @param string $keyword [optional] for custom short URLs
 	 * @param string $format [optional] either "json" or "xml"
+	 * @return array|string
 	 */
 	public function shorturl($url, $title, $keyword = null, $format = null)
 	{
@@ -230,7 +213,11 @@ class YourlsComponent extends Component
 		if (!empty($keyword)) {
 			$query = array_merge($query, array('keyword' => $keyword));
 		}
-		return $this->process($this->request($query));
+		$result = $this->process($this->request($query));
+		if ($this->format !== 'simple') {
+			$result = $result['Yourls']['shorturl'];
+		}
+		return $result;
 	}
 
 	/**
@@ -238,6 +225,7 @@ class YourlsComponent extends Component
 	 *
 	 * @param string $shorturl to expand (can be either 'abc' or 'http://site/abc')
 	 * @param string $format [optional] either "json" or "xml"
+	 * @return array|string
 	 */
 	public function expand($shorturl, $format = null)
 	{
@@ -257,8 +245,9 @@ class YourlsComponent extends Component
 	 *
 	 * @param string $shorturl for which to get stats (can be either 'abc' or 'http://site/abc')
 	 * @param string $format [optional] either "json" or "xml"
+	 * @return array|string
 	 */
-	public function url_stats($shorturl, $format = null)
+	public function urlStats($shorturl, $format = null)
 	{
 		if (empty($format)) {
 			$format = $this->format;
@@ -277,6 +266,7 @@ class YourlsComponent extends Component
 	 * @param string $filter [optional] either "top", "bottom" , "rand" or "last"
 	 * @param int [optional] $limit maximum number of links to return
 	 * @param string $format [optional] either "json" or "xml"
+	 * @return array|string
 	 */
 	public function stats($filter = null, $limit = null, $format = null)
 	{
@@ -294,6 +284,24 @@ class YourlsComponent extends Component
 		if (!empty($limit)) {
 			$query = array_merge($query, array('limit' => $limit));
 		}
+		return $this->process($this->request($query));
+	}
+
+	/**
+	 * Get database stats
+	 *
+	 * @param string $format [optional] either "json" or "xml"
+	 * @return array|string
+	 */
+	public function dbStats($format = null)
+	{
+		if (empty($format)) {
+			$format = $this->format;
+		}
+		$query = array(
+			'action' => 'db-stats',
+			'format' => $format
+		);
 		return $this->process($this->request($query));
 	}
 
