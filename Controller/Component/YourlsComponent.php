@@ -3,8 +3,8 @@
  * Yourls.Yourls
  * Uses remote calls to short the url.
  *
- * @author Adriano Luís Rocha <driflash [at] gmail [dot] com>
- * @since 0.7
+ * @author Adriano Luís Rocha <adriano [dot] luis [dot] rocha [at] gmail [dot] com>
+ * @since 1.0
  * @license MIT
  */
 App::uses('Xml', 'Utility');
@@ -107,27 +107,31 @@ class YourlsComponent extends Component
 		$array = array();
 		if (!empty($response)) {
 			$body = $response->body();
-			if ($this->format === 'xml') {
-				$xml = Xml::build($body);
-				$temp = Xml::toArray($xml);
-				$array = array(
-					'url' => $temp['result']['shorturl']
-				);
-				$temp = null;
-				$xml = null;
-				unset($temp);
-				unset($xml);
-			} elseif ($this->format === 'json') {
-				$temp = json_decode($body, true);
-				$array = array(
-					'url' => $temp['shorturl']
-				);
-				$temp = null;
-				unset($temp);
-			} elseif ($this->format === 'simple') {
-				$array = array(
+			switch ($this->format) {
+				case 'xml':
+					$xml = Xml::build($body);
+					$temp = Xml::toArray($xml);
+					$array = array(
+						'url' => $temp['result']['shorturl']
+					);
+					$temp = null;
+					$xml = null;
+					unset($temp);
+					unset($xml);
+					break;
+				case 'json':
+					$temp = json_decode($body, true);
+					$array = array(
+						'url' => $temp['shorturl']
+					);
+					$temp = null;
+					unset($temp);
+					break;
+				default:
+					$array = array(
 					'url' => $body
 				);
+					break;
 			}
 		}
 		return $array;
