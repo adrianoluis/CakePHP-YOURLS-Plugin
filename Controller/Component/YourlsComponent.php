@@ -71,7 +71,7 @@ class YourlsComponent extends Component
 	 *
 	 * @var string
 	 */
-	public $availableRequestMethod = array(
+	private $__requestMethods = array(
 		'get',
 		'post'
 	);
@@ -147,13 +147,7 @@ class YourlsComponent extends Component
 		} elseif (!empty($this->__username) && !empty($this->__password)) {
 			$query = array_merge($query, array('username' => $this->__username, 'password' => $this->__password));
 		}
-		if ($this->requestMethod === 'get') {
-			return $this->__httpSocket->get($url, $query);
-		} elseif ($this->requestMethod === 'post') {
-			return $this->__httpSocket->post($url, $query);
-		} else {
-			return false;
-		}
+		return $this->__httpSocket->{$this->requestMethod}($url, $query);
 	}
 
 	/**
@@ -198,6 +192,10 @@ class YourlsComponent extends Component
 		if (isset($settings['format']) && !in_array($settings['format'], $this->__formats)) {
 			trigger_error(__('Invalid value for \'format\' setting.'), E_USER_WARNING);
 			unset($settings['format']);
+		}
+		if (isset($settings['requestMethods']) && !in_array($settings['requestMethods'], $this->__requestMethods)) {
+			trigger_error(__('Invalid value for \'requestMethods\' setting.'), E_USER_WARNING);
+			unset($settings['requestMethods']);
 		}
 		if (isset($settings['filter']) && !in_array($settings['filter'], $this->__filters)) {
 			trigger_error(__('Invalid value for \'filter\' setting.'), E_USER_WARNING);
