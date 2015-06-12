@@ -1,47 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Cakephp-yourls-plugin : Plugin which integrates CakePHP with Yourls (Your Own URL Shortener). " />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CakePHP-YOURLS-Plugin by adrianoluis</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <title>Cakephp-yourls-plugin</title>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/driflash/CakePHP-YOURLS-Plugin">View on GitHub</a>
-
-          <h1 id="project_title">Cakephp-yourls-plugin</h1>
-          <h2 id="project_tagline">Plugin which integrates CakePHP with Yourls (Your Own URL Shortener). </h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/driflash/CakePHP-YOURLS-Plugin/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/driflash/CakePHP-YOURLS-Plugin/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>CakePHP YOURLS Plugin</h1>
+    <div class="wrapper">
+      <header>
+        <h1>CakePHP-YOURLS-Plugin</h1>
+        <p>Plugin to integrates CakePHP with Yourls (Your Own URL Shortener). </p>
+        <p class="view"><a href="https://github.com/adrianoluis/CakePHP-YOURLS-Plugin">View the Project on GitHub <small>adrianoluis/CakePHP-YOURLS-Plugin</small></a></p>
+        <ul>
+          <li><a href="https://github.com/adrianoluis/CakePHP-YOURLS-Plugin/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/adrianoluis/CakePHP-YOURLS-Plugin/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/adrianoluis/CakePHP-YOURLS-Plugin">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="cakephp-yourls-plugin" class="anchor" href="#cakephp-yourls-plugin" aria-hidden="true"><span class="octicon octicon-link"></span></a>CakePHP YOURLS Plugin</h1>
 
 <ul>
 <li>Author:  Adriano Luís Rocha (<a href="mailto:adriano.luis.rocha@gmail.com">adriano.luis.rocha@gmail.com</a>)</li>
-<li>Version: 0.7</li>
+<li>Version: 1.0</li>
 <li>license: MIT</li>
-</ul><h1>Install and Setup</h1>
+</ul>
 
-<p>First clone the repository into your <code>APP/Plugin/Yourls</code> directory</p>
+<h1>
+<a id="install-and-setup" class="anchor" href="#install-and-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install and Setup</h1>
 
-<pre><code>git clone git@github.com:driflash/CakePHP-YOURLS-Plugin.git APP/Plugin/Yourls
+<p>First add this repository as git submodule in your CakePHP project:</p>
+
+<pre><code>git submodule add https://github.com/adrianoluis/CakePHP-YOURLS-Plugin.git APP/Plugin/Yourls
+git submodule update --init
 </code></pre>
 
 <p>Once installed you'll need to create a file <code>/APP/Config/yourls.php</code>. You can find an example of what you'll need and how it is laid out in <code>/Yourls/Config/yourls.php.example</code>.</p>
@@ -56,23 +57,25 @@ $config = array(
 );
 </code></pre>
 
-<h1>Usage</h1>
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
 
 <p>You can call the component from any action in a controller or automate url shortening just using the follow code in your <code>/APP/Controller/AppController.php</code>:</p>
 
 <pre><code>public function beforeRender() {
+    $this-&gt;shortIt = true;
     $this-&gt;pageTitle = 'your url title goes here'
 }
 </code></pre>
 
-<p>PS: is necessary to provide a title for shorter method otherwise it'll go in a infinite loop trying to resolve URL's title using YOURLS internal libs.</p>
+<p>PS: is necessary to provide a title for shorter method otherwise it will go in a infinite loop trying to resolve URL's title using YOURLS internal libs.</p>
 
 <p>Than from yout view, access the shorted url using:</p>
 
 <pre><code>&lt;?php echo $shorturl['url']; ?&gt;
 </code></pre>
 
-<p>To get statistics from all your links you must change the default plugin format to xml (son is nor supported yet). This new setup changes the return from shorturl method.</p>
+<p>To get statistics from all your links you need to choose between json or xml. This new setup changes the return from shorturl method.</p>
 
 <pre><code>public $components = array(
     'Yourls.Yourls' =&gt; array(
@@ -82,16 +85,11 @@ $config = array(
 </code></pre>
       </section>
     </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Cakephp-yourls-plugin maintained by <a href="https://github.com/driflash">driflash</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
+    <footer>
+      <p>Project maintained by <a href="https://github.com/adrianoluis">adrianoluis</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
-
   </body>
 </html>
