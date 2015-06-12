@@ -20,14 +20,14 @@ class YourlsComponent extends Component
 	 *
 	 * @var string
 	 */
-	private $username;
+	private $__username;
 
 	/**
 	 * Admin password
 	 *
 	 * @var string
 	 */
-	private $password;
+	private $__password;
 
 	/**
 	 * A secret signature token is unique, associated to one account,
@@ -36,41 +36,46 @@ class YourlsComponent extends Component
 	 *
 	 * @var string Your secret signature token
 	 */
-	private $signature;
+	private $__signature;
 
 	/**
 	 * YOURLS installation URL, no trailing slash
 	 *
 	 * @var string
 	 */
-	private $url;
-	
-	/**
-	* Handle HttpSocket instance from CakePHP Core
-	*
-	* @var HttpSocket
-	*/
-	private $httpSocket;
+	private $__url;
 
 	/**
-	* Available file formats to comunicate with Yourls API.
-	*
-	* @var string
-	*/
-	private $formats = array('json', 'xml', 'simple');
-	
+	 * Handle HttpSocket instance from CakePHP Core
+	 *
+	 * @var HttpSocket
+	 */
+	private $__httpSocket;
+
+	/**
+	 * Available file formats to comunicate with Yourls API.
+	 *
+	 * @var string
+	 */
+	private $__formats = array('json', 'xml', 'simple');
+
 	/**
 	 * Available filters for statistics.
 	 *
 	 * @var string
 	 */
-	private $filters = array('top', 'bottom', 'rand', 'last');
-	
+	private $__filters = array('top', 'bottom', 'rand', 'last');
+
 	/**
 	 * Available communication methods
 	 *
 	 * @var string
-	
+	 */
+	public $availableRequestMethod = array(
+		'get',
+		'post'
+	);
+
 	/**
 	 * Response format
 	 *
@@ -97,30 +102,31 @@ class YourlsComponent extends Component
 	 *
 	 * @param string $response from remote call to YOURLS api
 	 */
-	private function process($response)
+	private function process(HttpSocketResponse $response)
 	{
 		$array = array();
-		if (!empty($response))
-		{
-			if ($this->format === 'xml')
-			{
-				$xml = new XML($response);
-				$temp = $xml->toArray();
+		if (!empty($response)) {
+			$body = $response->body();
+			if ($this->format === 'xml') {
+				$xml = Xml::build($body);
+				$temp = Xml::toArray($xml);
 				$array = array(
-					'Yourls' => $temp['Result']
+					'url' => $temp['result']['shorturl']
 				);
-				$xml->__destruct();
+				$temp = null;
 				$xml = null;
+				unset($temp);
 				unset($xml);
-			}
-			elseif ($this->format === 'json')
-			{
-				// TODO json parse
-			}
-			elseif ($this->format === 'simple')
-			{
+			} elseif ($this->format === 'json') {
+				$temp = json_decode($body, true);
 				$array = array(
-					'url' => $response
+					'url' => $temp['shorturl']
+				);
+				$temp = null;
+				unset($temp);
+			} elseif ($this->format === 'simple') {
+				$array = array(
+					'url' => $body
 				);
 			}
 		}
@@ -134,85 +140,66 @@ class YourlsComponent extends Component
 	 */
 	private function request($query)
 	{
-		$url = "{$this->url}/yourls-api.php";
+		$url = "{$this->__url}/yourls-api.php";
 
-		if (!empty($this->signature))
-		{
-			$query = array_merge($query, array('signature' => $this->signature));
+		if (!empty($this->__signature)) {
+			$query = array_merge($query, array('signature' => $this->__signature));
+		} elseif (!empty($this->__username) && !empty($this->__password)) {
+			$query = array_merge($query, array('username' => $this->__username, 'password' => $this->__password));
 		}
-		elseif (!empty($this->username) && !empty($this->password))
-		{
-			$query = array_merge($query, array('username' => $this->username, 'password' => $this->password));
-		}
-		if ($this->requestMethod === 'get')
-		{
-			return $this->httpSocket->get($url, $query);
-		}
-		elseif ($this->requestMethod === 'post')
-		{
-			return $this->httpSocket->post($url, $query);
-		}
-		else
-		{
+		if ($this->requestMethod === 'get') {
+			return $this->__httpSocket->get($url, $query);
+		} elseif ($this->requestMethod === 'post') {
+			return $this->__httpSocket->post($url, $query);
+		} else {
 			return false;
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @see Component::beforeRender($controller)
 	 */
 	public function beforeRender(Controller $controller)
 	{
-		if (isset($controller->shortIt) && $controller->shortIt === true)
-		{
-			if (isset($controller->pageTitle))
-			{
+		if (isset($controller->shortIt) && $controller->shortIt === true) {
+			if (isset($controller->pageTitle)) {
 				$controller->set('shorturl', $this->shorturl("http://{$_SERVER['SERVER_NAME']}{$controller->request->here}", $controller->pageTitle));
-			}
-			else
-			{
+			} else {
 				trigger_error(__('No page title provided. Impossible to short URL.'), E_USER_ERROR);
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @see Component::startup($controller)
 	 */
 	public function startup(Controller $controller)
 	{
-		$this->httpSocket =& new HttpSocket();
-		$this->url = Configure::read('Yourls.url');
-		if (Configure::read('Yourls.signature'))
-		{
-			$this->signature = Configure::read('Yourls.signature');
-		}
-		elseif (Configure::read('Yourls.username') && Configure::read('Yourls.password'))
-		{
-			$this->username = Configure::read('Yourls.username');
-			$this->password = Configure::read('Yourls.password');
-		}
-		else
-		{
+		$this->__httpSocket =& new HttpSocket();
+		$this->__url = Configure::read('Yourls.url');
+		if (Configure::read('Yourls.signature')) {
+			$this->__signature = Configure::read('Yourls.signature');
+		} elseif (Configure::read('Yourls.username') && Configure::read('Yourls.password')) {
+			$this->__username = Configure::read('Yourls.username');
+			$this->__password = Configure::read('Yourls.password');
+		} else {
 			trigger_error(__('No authentication provided!'), E_USER_ERROR);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @see Component::__construct($collection, $settings)
 	 */
 	public function __construct(ComponentCollection $collection, $settings = array())
 	{
-		if (isset($settings['format']) && !in_array($settings['format'], $this->formats))
-		{
+		if (isset($settings['format']) && !in_array($settings['format'], $this->__formats)) {
 			trigger_error(__('Invalid value for \'format\' setting.'), E_USER_WARNING);
 			unset($settings['format']);
 		}
-		if (isset($settings['filter']) && !in_array($settings['filter'], $this->filters))
-		{
+		if (isset($settings['filter']) && !in_array($settings['filter'], $this->__filters)) {
 			trigger_error(__('Invalid value for \'filter\' setting.'), E_USER_WARNING);
 			unset($settings['filter']);
 		}
@@ -229,8 +216,7 @@ class YourlsComponent extends Component
 	 */
 	public function shorturl($url, $title, $keyword = null, $format = null)
 	{
-		if (empty($format))
-		{
+		if (empty($format)) {
 			$format = $this->format;
 		}
 		$query = array(
@@ -239,8 +225,7 @@ class YourlsComponent extends Component
 			'title' => $title,
 			'format' => $format
 		);
-		if (!empty($keyword))
-		{
+		if (!empty($keyword)) {
 			$query = array_merge($query, array('keyword' => $keyword));
 		}
 		return $this->process($this->request($query));
@@ -254,8 +239,7 @@ class YourlsComponent extends Component
 	 */
 	public function expand($shorturl, $format = null)
 	{
-		if (empty($format))
-		{
+		if (empty($format)) {
 			$format = $this->format;
 		}
 		$query = array(
@@ -274,8 +258,7 @@ class YourlsComponent extends Component
 	 */
 	public function url_stats($shorturl, $format = null)
 	{
-		if (empty($format))
-		{
+		if (empty($format)) {
 			$format = $this->format;
 		}
 		$query = array(
@@ -295,12 +278,10 @@ class YourlsComponent extends Component
 	 */
 	public function stats($filter = null, $limit = null, $format = null)
 	{
-		if (empty($format))
-		{
+		if (empty($format)) {
 			$format = $this->format;
 		}
-		if (empty($filter))
-		{
+		if (empty($filter)) {
 			$filter = $this->filter;
 		}
 		$query = array(
@@ -308,8 +289,7 @@ class YourlsComponent extends Component
 			'filter' => $filter,
 			'format' => $format
 		);
-		if (!empty($limit))
-		{
+		if (!empty($limit)) {
 			$query = array_merge($query, array('limit' => $limit));
 		}
 		return $this->process($this->request($query));
