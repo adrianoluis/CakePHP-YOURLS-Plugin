@@ -1,0 +1,16 @@
+{
+	"name": "adrianoluis/cake-php-yourls-plugin",
+	"type": "cakephp-plugin",
+	"require": {
+		"php": ">=5.4.0",
+		"composer/installers": "~1.0"
+	},
+	"authors": [{
+		"name": "Adriano Luís Rocha",
+		"email": "adriano.luis.rocha@gmail.com"
+	}],
+	"extra": {
+		"installer-name": "Yourls"
+	},
+	"license": "MIT"
+}
